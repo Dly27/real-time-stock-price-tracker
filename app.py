@@ -27,9 +27,13 @@ class App(tk.Tk):
         self.entry.pack(pady=10)
         self.invalid_ticker_error_label = None
 
-        # Button to submit ticker in input box
-        self.submit_button = tk.Button(self.left_frame, text="Submit", command=self.add_new_ticker)
-        self.submit_button.pack(pady=10)
+        # Button to add new ticker written input box to plot
+        self.add_new_ticker_button = tk.Button(self.left_frame, text="Track ticker", command=self.add_new_ticker)
+        self.add_new_ticker_button.pack(pady=10)
+
+        # Button to remove ticker written in input box from plot
+        self.remove_ticker_button = tk.Button(self.left_frame, text="Remove ticker", command=self.remove_ticker)
+        self.remove_ticker_button.pack(pady=10)
 
         # Create a frame for the right side
         self.right_frame = tk.Frame(self, width=1200, height=1000)
@@ -125,6 +129,23 @@ class App(tk.Tk):
             self.y_data[new_ticker] = deque()
             self.lines[new_ticker], = self.ax.plot([], [], label=new_ticker)
             print(f"Tracking new ticker: {new_ticker}")
+            self.clear_invalid_ticker_message()
+    def remove_ticker(self):
+        ticker_to_remove = self.entry.get().upper()
+
+        if ticker_to_remove not in self.tickers:
+            self.show_invalid_ticker_message("Ticker not being tracked")
+        else:
+            # Remove the ticker from tracked lists and dictionaries
+            self.tickers.remove(ticker_to_remove)
+            del self.y_data[ticker_to_remove]
+            self.lines[ticker_to_remove].remove()  # Remove the plot line
+            del self.lines[ticker_to_remove]
+
+            # Redraw the canvas
+            self.ax.legend(loc="upper left")
+            self.canvas.draw()
+
             self.clear_invalid_ticker_message()
 
     def show_invalid_ticker_message(self, message):
